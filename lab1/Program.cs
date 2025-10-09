@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Text;
 
 namespace lab1
 {
@@ -9,6 +6,8 @@ namespace lab1
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             #region Data Definition
             // Навчальна вибірка (15 прикладів)
             var trainData = new List<DataPoint>
@@ -52,11 +51,25 @@ namespace lab1
             Console.WriteLine("Normalization done (min-max).");
             #endregion
 
+            // Вивід параметрів нормалізації для звіту
+            Console.WriteLine("\nПараметри нормалізації:");
+            Console.WriteLine($" Time: min={minTime:F2}, max={maxTime:F2}");
+            Console.WriteLine($" Altitude: min={minAlt:F2}, max={maxAlt:F2}");
+
+            // Вивід нормалізованих даних для звіту (п. 3, 4)
+            Console.WriteLine("\nНормовані дані (Навчальна вибірка):");
+            Console.WriteLine("| ID | Час (X1) | Висота (X2) | Клас |");
+            Console.WriteLine("|----|----------|-------------|------|");
+            foreach (var d in trainData)
+            {
+                Console.WriteLine($"| {d.Id,-2} | {d.Time,8:F6} | {d.Altitude,11:F6} | {d.Type,-10} |");
+            }
+
             #region Training mode selection parameters
             // Параметри навчання
             int baseMaxEpochs = 100;   // базова кількість епох для sequential/alternating
-            int randomSeed = 9;    // фіксований seed для відтворюваності (змінити на null-призначення на свій ризик)
-            bool useSeed = false;       // увімкнути/вимкнути фіксований seed
+            int randomSeed = 991;    // фіксований seed для відтворюваності (змінити на null-призначення на свій ризик)
+            bool useSeed = true;       // увімкнути/вимкнути фіксований seed
 
             if(useSeed)
             {
