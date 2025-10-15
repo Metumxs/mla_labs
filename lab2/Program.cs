@@ -107,7 +107,13 @@ namespace lab2_2
             Console.WriteLine(new string('=', 70));
             PrintResultsTable(experimentResults);
 
-            Console.WriteLine("\n+ Всі експерименти виконано!");
+            // Виведення аналізу та загальних висновків
+            Console.WriteLine("\n" + new string('=', 70)); // <--- ЗМІНА
+            Console.WriteLine("АНАЛІЗ РЕЗУЛЬТАТІВ ЕКСПЕРИМЕНТІВ"); // <--- ЗМІНА
+            Console.WriteLine(new string('=', 70)); // <--- ЗМІНА
+            AnalyzeResults(experimentResults); // <--- ЗМІНА: Додано виклик методу аналізу
+
+            Console.WriteLine("\n+ Всі експерименти та аналіз виконано!"); // <--- ЗМІНА
         }
 
         // Функція для виконання одного експерименту
@@ -121,8 +127,8 @@ namespace lab2_2
             double windMinRange = 0.0;    // м/с
             double windMaxRange = 20.0;   // м/с
 
-            Console.WriteLine($"   Діапазон температури: [{tempMinRange}, {tempMaxRange}] °C");
-            Console.WriteLine($"   Діапазон швидкості вітру: [{windMinRange}, {windMaxRange}] м/с");
+            Console.WriteLine($"    Діапазон температури: [{tempMinRange}, {tempMaxRange}] °C");
+            Console.WriteLine($"    Діапазон швидкості вітру: [{windMinRange}, {windMaxRange}] м/с");
 
             // Генерація початкових даних
             var rawData = GenerateSyntheticData(200, tempMinRange, tempMaxRange,
@@ -130,19 +136,19 @@ namespace lab2_2
 
             Console.WriteLine($"\n[2] Масштабування ознак (Min-Max нормалізація)...");
             var normalizedData = NormalizeData(rawData);
-            Console.WriteLine($"   Температура нормалізована: [{tempMin:F2}, {tempMax:F2}] → [0, 1]");
-            Console.WriteLine($"   Швидкість вітру нормалізована: [{windMin:F2}, {windMax:F2}] → [0, 1]");
+            Console.WriteLine($"    Температура нормалізована: [{tempMin:F2}, {tempMax:F2}] → [0, 1]");
+            Console.WriteLine($"    Швидкість вітру нормалізована: [{windMin:F2}, {windMax:F2}] → [0, 1]");
 
             Console.WriteLine($"\n[3] Розділення на навчальну ({trainRatio * 100:F0}%) та тестову ({(1 - trainRatio) * 100:F0}%) вибірки...");
             var (trainData, testData) = SplitData(normalizedData, trainRatio, expNumber);
-            Console.WriteLine($"   Навчальна вибірка: {trainData.Count} записів");
-            Console.WriteLine($"   Тестова вибірка: {testData.Count} записів");
+            Console.WriteLine($"    Навчальна вибірка: {trainData.Count} записів");
+            Console.WriteLine($"    Тестова вибірка: {testData.Count} записів");
 
             Console.WriteLine($"\n[4] Створення моделі регресії...");
-            Console.WriteLine("   Алгоритм: LightGBM (Light Gradient Boosting Machine)");
-            Console.WriteLine("   Кількість дерев: 100");
-            Console.WriteLine("   Кількість листків: 31");
-            Console.WriteLine("   Learning rate: 0.1");
+            Console.WriteLine("    Алгоритм: LightGBM (Light Gradient Boosting Machine)");
+            Console.WriteLine("    Кількість дерев: 100");
+            Console.WriteLine("    Кількість листків: 31");
+            Console.WriteLine("    Learning rate: 0.1");
 
             var mlContext = new MLContext(seed: 42 + expNumber);
 
@@ -178,7 +184,7 @@ namespace lab2_2
 
             Console.WriteLine($"\n[5] Навчання моделі...");
             var model = pipeline.Fit(trainDataView);
-            Console.WriteLine("   + Навчання завершено");
+            Console.WriteLine("    + Навчання завершено");
 
             Console.WriteLine($"\n[6] Оцінка якості моделі...");
 
@@ -194,9 +200,11 @@ namespace lab2_2
 
             Console.WriteLine("\n=== РЕЗУЛЬТАТИ ЕКСПЕРИМЕНТУ ===");
             Console.WriteLine($"R² (навчальна вибірка): {trainMetrics.RSquared:F4}");
-            Console.WriteLine($"R² (тестова вибірка):   {testMetrics.RSquared:F4}");
-            Console.WriteLine($"MAE (тестова):          {testMetrics.MeanAbsoluteError:F4}");
-            Console.WriteLine($"RMSE (тестова):         {testMetrics.RootMeanSquaredError:F4}");
+            Console.WriteLine($"R² (тестова вибірка):    {testMetrics.RSquared:F4}");
+            Console.WriteLine($"MAE (тестова):           {testMetrics.MeanAbsoluteError:F4}");
+            Console.WriteLine($"RMSE (тестова):          {testMetrics.RootMeanSquaredError:F4}");
+
+            InterpretR2(trainMetrics.RSquared, testMetrics.RSquared); // <--- ЗМІНА: Додано виклик інтерпретації
 
             return new ExperimentResult
             {
@@ -340,76 +348,74 @@ namespace lab2_2
             Console.WriteLine("\n1. ВПЛИВ РОЗПОДІЛУ ДАНИХ:");
             var exp1 = results[0];  // 80/20
             var exp2 = results[1];  // 85/15
-            Console.WriteLine($"   > При збільшенні навчальної вибірки (80→85%):");
-            Console.WriteLine($"     Train R²: {exp1.TrainR2:F4} → {exp2.TrainR2:F4} (Δ = {exp2.TrainR2 - exp1.TrainR2:F4})");
-            Console.WriteLine($"     Test R²:  {exp1.TestR2:F4} → {exp2.TestR2:F4} (Δ = {exp2.TestR2 - exp1.TestR2:F4})");
+            Console.WriteLine($"    > При збільшенні навчальної вибірки (80% → 85%):");
+            Console.WriteLine($"      Train R²: {exp1.TrainR2:F4} → {exp2.TrainR2:F4} (Δ = {exp2.TrainR2 - exp1.TrainR2:F4})");
+            Console.WriteLine($"      Test R²:  {exp1.TestR2:F4} → {exp2.TestR2:F4} (Δ = {exp2.TestR2 - exp1.TestR2:F4})");
 
             if (exp2.TestR2 > exp1.TestR2)
-                Console.WriteLine("     + Більше навчальних даних покращило якість моделі");
+                Console.WriteLine("      + Висновок: Більше навчальних даних незначно покращило якість моделі на тестовій вибірці.");
             else
-                Console.WriteLine("     ! Збільшення навчальних даних не дало значного покращення");
+                Console.WriteLine("      ! Висновок: Збільшення навчальних даних не дало очікуваного покращення, що може свідчити про достатність початкового обсягу даних.");
 
             Console.WriteLine("\n2. ВПЛИВ РІВНЯ ШУМУ (нормальний розподіл):");
             var exp3 = results[2];  // шум 1.5
             var exp4 = results[3];  // шум 5.0
-            Console.WriteLine($"   > Малий шум (σ=1.5):   Test R² = {exp3.TestR2:F4}, RMSE = {exp3.RMSE:F3}");
-            Console.WriteLine($"   > Середній шум (σ=3.0): Test R² = {exp1.TestR2:F4}, RMSE = {exp1.RMSE:F3}");
-            Console.WriteLine($"   > Великий шум (σ=5.0):  Test R² = {exp4.TestR2:F4}, RMSE = {exp4.RMSE:F3}");
-            Console.WriteLine("   Висновок: Зі збільшенням шуму якість моделі погіршується (нижче R², вище RMSE)");
+            Console.WriteLine($"    > Малий шум (σ=1.5):   Test R² = {exp3.TestR2:F4}, RMSE = {exp3.RMSE:F3}");
+            Console.WriteLine($"    > Середній шум (σ=3.0): Test R² = {exp1.TestR2:F4}, RMSE = {exp1.RMSE:F3}");
+            Console.WriteLine($"    > Великий шум (σ=5.0):  Test R² = {exp4.TestR2:F4}, RMSE = {exp4.RMSE:F3}");
+            Console.WriteLine("    + Висновок: Зі збільшенням рівня шуму якість моделі очікувано та суттєво погіршується (R² падає, а помилки MAE/RMSE зростають).");
 
             Console.WriteLine("\n3. ВПЛИВ ТИПУ ШУМУ:");
             var exp5 = results[4];  // рівномірний шум
-            Console.WriteLine($"   > Нормальний шум:    Test R² = {exp1.TestR2:F4}, RMSE = {exp1.RMSE:F3}");
-            Console.WriteLine($"   > Рівномірний шум:   Test R² = {exp5.TestR2:F4}, RMSE = {exp5.RMSE:F3}");
+            Console.WriteLine($"    > Нормальний шум (σ=3.0):   Test R² = {exp1.TestR2:F4}, RMSE = {exp1.RMSE:F3}");
+            Console.WriteLine($"    > Рівномірний шум (±5.0):   Test R² = {exp5.TestR2:F4}, RMSE = {exp5.RMSE:F3}");
+            // Примітка: порівнюємо експеримент 4 (нормальний шум 5.0) з експериментом 5 (рівномірний шум 5.0)
+            Console.WriteLine($"    > Нормальний шум (σ=5.0):   Test R² = {exp4.TestR2:F4}, RMSE = {exp4.RMSE:F3}");
 
-            if (Math.Abs(exp1.TestR2 - exp5.TestR2) < 0.05)
-                Console.WriteLine("   Висновок: Тип шуму має незначний вплив при однаковому рівні");
-            else if (exp1.TestR2 > exp5.TestR2)
-                Console.WriteLine("   Висновок: Модель краще справляється з нормальним шумом");
+            if (Math.Abs(exp4.TestR2 - exp5.TestR2) < 0.05)
+                Console.WriteLine("    + Висновок: При однаковому діапазоні (`±5` для рівномірного та `~±5` для нормального з σ=5), тип шуму має незначний вплив на якість моделі.");
+            else if (exp4.TestR2 > exp5.TestR2)
+                Console.WriteLine("    + Висновок: Модель виявилася стійкішою до нормального шуму, ніж до рівномірного, при однаковому рівні.");
             else
-                Console.WriteLine("   Висновок: Модель краще справляється з рівномірним шумом");
+                Console.WriteLine("    + Висновок: Модель виявилася стійкішою до рівномірного шуму, ніж до нормального, при однаковому рівні.");
 
-            Console.WriteLine("\n4. ПЕРЕНАВЧАННЯ:");
+            Console.WriteLine("\n4. АНАЛІЗ ПЕРЕНАВЧАННЯ:");
+            Console.WriteLine("    Перевіряємо різницю між R² на навчальній та тестовій вибірках (Δ = Train R² - Test R²).");
             foreach (var result in results)
             {
                 double diff = result.TrainR2 - result.TestR2;
                 string status = diff > 0.1 ? "! Можливе перенавчання" : "+ Перенавчання відсутнє";
-                Console.WriteLine($"   Експеримент {result.ExperimentNumber}: Δ(R²) = {diff:F4}  {status}");
+                Console.WriteLine($"    Експеримент {result.ExperimentNumber}: Δ(R²) = {diff:F4}  ({status})");
             }
-
             Console.WriteLine("\n5. ЗАГАЛЬНИЙ ВИСНОВОК:");
             var bestExp = results.OrderByDescending(r => r.TestR2).First();
-            Console.WriteLine($"   Найкраща модель: Експеримент {bestExp.ExperimentNumber}");
-            Console.WriteLine($"   > Розподіл: {bestExp.TrainTestRatio * 100:F0}/{(1 - bestExp.TrainTestRatio) * 100:F0}");
-            Console.WriteLine($"   > Шум: {bestExp.NoiseType}, рівень {bestExp.NoiseLevel:F1}");
-            Console.WriteLine($"   > Test R² = {bestExp.TestR2:F4}");
-            Console.WriteLine("\n   Рекомендації:");
-            Console.WriteLine("   > Використовувати мінімальний рівень шуму для максимальної точності");
-            Console.WriteLine("   > Збільшувати навчальну вибірку для стабільніших результатів");
-            Console.WriteLine("   > Модель LightGBM добре справляється з нелінійними залежностями");
-        }
+            Console.WriteLine($"    Найкращу якість прогнозування (найвищий Test R²) показала модель з Експерименту №{bestExp.ExperimentNumber}.");
+            Console.WriteLine($"    > Умови: Розподіл {bestExp.TrainTestRatio * 100:F0}/{(1 - bestExp.TrainTestRatio) * 100:F0}, {bestExp.NoiseType} шум з рівнем {bestExp.NoiseLevel:F1}.");
+            Console.WriteLine($"    > Результат: Test R² = {bestExp.TestR2:F4}.");        }
 
         // Інтерпретація R²
         static void InterpretR2(double trainR2, double testR2)
         {
-            Console.WriteLine("\n=== ІНТЕРПРЕТАЦІЯ ===");
-
+            Console.WriteLine("\n--- Інтерпретація ---");
+            string quality;
             if (testR2 >= 0.9)
-                Console.WriteLine("+ Відмінна якість моделі (R² ≥ 0.9)");
+                quality = "+ Відмінна якість моделі (R² ≥ 0.9)";
             else if (testR2 >= 0.7)
-                Console.WriteLine("+ Хороша якість моделі (R² ≥ 0.7)");
+                quality = "+ Хороша якість моделі (R² ≥ 0.7)";
             else if (testR2 >= 0.5)
-                Console.WriteLine("! Задовільна якість моделі (R² ≥ 0.5)");
+                quality = "! Задовільна якість моделі (R² ≥ 0.5)";
             else if (testR2 >= 0)
-                Console.WriteLine("! Низька якість моделі (R² < 0.5)");
+                quality = "! Низька якість моделі (R² < 0.5)";
             else
-                Console.WriteLine("!! Модель працює гірше за середнє значення (R² < 0)");
+                quality = "!! Модель працює гірше за середнє значення (R² < 0)";
+
+            Console.WriteLine(quality);
 
             double diff = trainR2 - testR2;
             if (diff > 0.1)
-                Console.WriteLine($"!! Можливе перенавчання (різниця R²: {diff:F4})");
+                Console.WriteLine($"!! Можливе перенавчання (різниця R² між train/test: {diff:F4})");
             else
-                Console.WriteLine("+ Перенавчання відсутнє");
+                Console.WriteLine($"+ Перенавчання відсутнє (різниця R²: {diff:F4})");
         }
     }
 }
