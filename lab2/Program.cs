@@ -107,13 +107,7 @@ namespace lab2_2
             Console.WriteLine(new string('=', 70));
             PrintResultsTable(experimentResults);
 
-            // Аналіз результатів
-            Console.WriteLine("\n" + new string('=', 70));
-            Console.WriteLine("АНАЛІЗ РЕЗУЛЬТАТІВ");
-            Console.WriteLine(new string('=', 70));
-            AnalyzeResults(experimentResults);
-
-            Console.WriteLine("\n✓ Всі експерименти виконано!");
+            Console.WriteLine("\n+ Всі експерименти виконано!");
         }
 
         // Функція для виконання одного експерименту
@@ -184,7 +178,7 @@ namespace lab2_2
 
             Console.WriteLine($"\n[5] Навчання моделі...");
             var model = pipeline.Fit(trainDataView);
-            Console.WriteLine("   ✓ Навчання завершено");
+            Console.WriteLine("   + Навчання завершено");
 
             Console.WriteLine($"\n[6] Оцінка якості моделі...");
 
@@ -203,8 +197,6 @@ namespace lab2_2
             Console.WriteLine($"R² (тестова вибірка):   {testMetrics.RSquared:F4}");
             Console.WriteLine($"MAE (тестова):          {testMetrics.MeanAbsoluteError:F4}");
             Console.WriteLine($"RMSE (тестова):         {testMetrics.RootMeanSquaredError:F4}");
-
-            InterpretR2(trainMetrics.RSquared, testMetrics.RSquared);
 
             return new ExperimentResult
             {
@@ -349,11 +341,11 @@ namespace lab2_2
             var exp1 = results[0];  // 80/20
             var exp2 = results[1];  // 85/15
             Console.WriteLine($"   > При збільшенні навчальної вибірки (80→85%):");
-            Console.WriteLine($"     Train R²: {exp1.TrainR2:F4} → {exp2.TrainR2:F4} (Δ = {exp2.TrainR2 - exp1.TrainR2:+F4})");
-            Console.WriteLine($"     Test R²:  {exp1.TestR2:F4} → {exp2.TestR2:F4} (Δ = {exp2.TestR2 - exp1.TestR2:+F4})");
+            Console.WriteLine($"     Train R²: {exp1.TrainR2:F4} → {exp2.TrainR2:F4} (Δ = {exp2.TrainR2 - exp1.TrainR2:F4})");
+            Console.WriteLine($"     Test R²:  {exp1.TestR2:F4} → {exp2.TestR2:F4} (Δ = {exp2.TestR2 - exp1.TestR2:F4})");
 
             if (exp2.TestR2 > exp1.TestR2)
-                Console.WriteLine("     ✓ Більше навчальних даних покращило якість моделі");
+                Console.WriteLine("     + Більше навчальних даних покращило якість моделі");
             else
                 Console.WriteLine("     ! Збільшення навчальних даних не дало значного покращення");
 
@@ -381,7 +373,7 @@ namespace lab2_2
             foreach (var result in results)
             {
                 double diff = result.TrainR2 - result.TestR2;
-                string status = diff > 0.1 ? "! Можливе перенавчання" : "✓ Перенавчання відсутнє";
+                string status = diff > 0.1 ? "! Можливе перенавчання" : "+ Перенавчання відсутнє";
                 Console.WriteLine($"   Експеримент {result.ExperimentNumber}: Δ(R²) = {diff:F4}  {status}");
             }
 
@@ -415,7 +407,7 @@ namespace lab2_2
 
             double diff = trainR2 - testR2;
             if (diff > 0.1)
-                Console.WriteLine($"! Можливе перенавчання (різниця R²: {diff:F4})");
+                Console.WriteLine($"!! Можливе перенавчання (різниця R²: {diff:F4})");
             else
                 Console.WriteLine("+ Перенавчання відсутнє");
         }
