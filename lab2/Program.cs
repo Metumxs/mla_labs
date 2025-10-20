@@ -108,12 +108,12 @@ namespace lab2_2
             PrintResultsTable(experimentResults);
 
             // Виведення аналізу та загальних висновків
-            Console.WriteLine("\n" + new string('=', 70)); // <--- ЗМІНА
-            Console.WriteLine("АНАЛІЗ РЕЗУЛЬТАТІВ ЕКСПЕРИМЕНТІВ"); // <--- ЗМІНА
-            Console.WriteLine(new string('=', 70)); // <--- ЗМІНА
-            AnalyzeResults(experimentResults); // <--- ЗМІНА: Додано виклик методу аналізу
+            Console.WriteLine("\n" + new string('=', 70));
+            Console.WriteLine("АНАЛІЗ РЕЗУЛЬТАТІВ ЕКСПЕРИМЕНТІВ");
+            Console.WriteLine(new string('=', 70));
+            AnalyzeResults(experimentResults);
 
-            Console.WriteLine("\n+ Всі експерименти та аналіз виконано!"); // <--- ЗМІНА
+            Console.WriteLine("\n+ Всі експерименти та аналіз виконано!");
         }
 
         // Функція для виконання одного експерименту
